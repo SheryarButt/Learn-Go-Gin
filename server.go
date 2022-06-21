@@ -27,24 +27,35 @@ func main() {
 	setupLogOuput()
 	server := gin.New()
 
+	server.Static("/css", "./templates/css")
+	server.LoadHTMLGlob("templates/*.html")
+
 	server.Use(gin.Recovery(), middlewares.Logger(), middlewares.BasicAuth(), gindump.Dump())
 
-	server.GET("/videos", func(ctx *gin.Context) {
-		ctx.JSON(200, VideoController.FindAll())
-	})
+	apiRoputes := server.Group("/api")
+	{
+		apiRoputes.GET("/videos", func(ctx *gin.Context) {
+			ctx.JSON(200, VideoController.FindAll())
+		})
 
-	server.POST("/videos", func(ctx *gin.Context) {
-		err := VideoController.Save(ctx)
-		if err != nil {
-			ctx.JSON(http.StatusBadRequest, gin.H{
-				"error": err.Error(),
-			})
-		} else {
-			ctx.JSON(http.StatusOK, gin.H{
-				"message": "Video saved successfully",
-			})
-		}
-	})
+		apiRoputes.POST("/videos", func(ctx *gin.Context) {
+			err := VideoController.Save(ctx)
+			if err != nil {
+				ctx.JSON(http.StatusBadRequest, gin.H{
+					"error": err.Error(),
+				})
+			} else {
+				ctx.JSON(http.StatusOK, gin.H{
+					"message": "Video saved successfully",
+				})
+			}
+		})
+	}
+
+	viewRoutes := server.Group("/view")
+	{
+		viewRoutes.GET("/videos", VideoController.ShowAll)
+	}
 
 	err := server.Run(":8080")
 	if err != nil {
