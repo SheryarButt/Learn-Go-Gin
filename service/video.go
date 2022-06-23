@@ -26,9 +26,11 @@ func (service *videoService) Save(video *entity.Video) *entity.Video {
 	service.videoRepository.Save(video)
 	return video
 }
+
 func (service *videoService) Update(video *entity.Video) {
 	service.videoRepository.Update(video)
 }
+
 func (service *videoService) Delete(video *entity.Video) {
 	service.videoRepository.Delete(video)
 }

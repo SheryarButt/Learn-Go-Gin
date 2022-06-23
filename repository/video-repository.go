@@ -31,14 +31,6 @@ func NewVideoRepository() *database {
 	}
 }
 
-func (db *database) CloseDB() {
-	DB, err := db.connection.DB()
-	if err != nil {
-		panic("Failed to close database")
-	}
-	DB.Close()
-}
-
 func (db *database) Save(video *entity.Video) {
 	db.connection.Create(video)
 }
@@ -48,11 +40,19 @@ func (db *database) Update(video *entity.Video) {
 }
 
 func (db *database) Delete(video *entity.Video) {
-	db.connection.Delete(video)
+	db.connection.Set("gorm:auto_preload", true).Delete(video)
 }
 
 func (db *database) FindAll() []entity.Video {
 	var videos []entity.Video
 	db.connection.Set("gorm:auto_preload", true).Find(&videos)
 	return videos
+}
+
+func (db *database) CloseDB() {
+	DB, err := db.connection.DB()
+	if err != nil {
+		panic("Failed to close database")
+	}
+	DB.Close()
 }
